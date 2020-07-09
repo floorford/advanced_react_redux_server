@@ -14,12 +14,15 @@ const app = express();
 // nodemon watches and rebuilds server!
 
 // DB Setup
-mongoose.connect("mongodb://localhost/auth", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost/auth", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 // creates a table called auth in our local mongoDB
 
 const connection = mongoose.connection;
 
-connection.on("connected", function() {
+connection.on("connected", function () {
   console.log("Connected to DB");
 });
 

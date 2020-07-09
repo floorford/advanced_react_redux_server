@@ -11,24 +11,24 @@ const bcrypt = require("bcrypt-nodejs");
 // Define model
 const userSchema = new Schema({
   email: { type: String, unique: true, lowercase: true },
-  password: String
+  password: String,
 });
 
 // On Save Hook, encrypt password
 // runs before saving model
-userSchema.pre("save", function(next) {
+userSchema.pre("save", function (next) {
   // get access to user model
   // (user = instance of user model)
   const user = this;
 
   // using bcrypt library genSalt function
   // passing in callback to ensure synchronisity
-  bcrypt.genSalt(10, function(err, salt) {
+  bcrypt.genSalt(10, function (err, salt) {
     // error handling
     if (err) return next(err);
 
     // hashes password using salt
-    bcrypt.hash(user.password, salt, null, function(err, hash) {
+    bcrypt.hash(user.password, salt, null, function (err, hash) {
       if (err) return next(err);
 
       // overwrite plain text with encrypted version
@@ -39,6 +39,18 @@ userSchema.pre("save", function(next) {
     });
   });
 });
+
+// all user objects will have access to methods added with the .methods syntax
+userSchema.methods.comparePassword = function (candidatePassword, callback) {
+  bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
+    if (err) {
+      return callback(err);
+    }
+    // isMatch is a boolean
+    callback(null, isMatch);
+  });
+  // this = reference to user model so the hashed and salted password
+};
 
 // Create model class
 const ModelClass = mongoose.model("user", userSchema);
